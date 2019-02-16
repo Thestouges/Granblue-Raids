@@ -39,6 +39,8 @@ namespace Granblue_Raids
         Queue<string> tweetraidIDqueue;
         HttpClient client;
         int queueLimit = 10;
+        string URL = "chrome-extension://fgpokpknehglcioijejfeebigdnbnokj/content/api.html";
+        int messageID = 1;
 
         public Main()
         {
@@ -188,13 +190,17 @@ namespace Granblue_Raids
             int counter = 1;
             while (true)
             {
+                testtextbox.Text = raidUserList.Count + "\r\n";
+                testtextbox.Text += counter + "\r\n";
                 if (raidUserList.Count > 0)
                 {
                     if (counter > raidUserList.Count)
                         counter = 1;
+                    testtextbox.Text += (DateTime.Now - savedTime).TotalSeconds+"";
                     if ((DateTime.Now - savedTime).TotalSeconds > 2)
                     {
                         List<ITweet> tweets = await Task.Run(() => SearchRaids(counter));
+                        testtextbox.Text = tweets.Count+"";
                         foreach (var tweet in tweets)
                         {
                             int raidID = tweet.Text.LastIndexOf(" :参戦ID");
@@ -252,12 +258,24 @@ namespace Granblue_Raids
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
+            foreach (int x in raidUserList)
+            {
+                if(!raidInfoList.ContainsKey(x))
+                {
+                    raidUserList.Remove(x);
+                }
+            }
             Settings.Default["UserRaid"] = raidUserList;
             Settings.Default.Save();
             Environment.Exit(Environment.ExitCode);
         }
 
         private void tweetsListView_DoubleClick(object sender, EventArgs e)
+        {
+            Clipboard.SetText(tweetsListView.SelectedItems[0].Text);
+        }
+
+        private void sendApiRequest()
         {
 
         }
